@@ -31,7 +31,7 @@ async def webhook(request: Request, jjjrk: str = Header(None)):
     # Process the intent and generate a response
     intent_handler_dict = {
         'order.add - context: ongoing-order': add_to_order,
-        'order.remove - context: ongoing-order':remove_from_order,
+        'order.remove - context: ongoing-order': remove_from_order,
         'order.complete - context: ongoing-order': complete_order,
         'track order - context: ongoing-tracking': track_order
     }
@@ -45,12 +45,12 @@ def remove_from_order(parameters: dict, session_id: str):
                            "can you please order it again"
     else:
         current_order = inprogress_order[session_id]
-        food_items = parameters['food-item']
+        bed_items = parameters['bed-item']
 
         removed_items = []
         no_such_items = []
 
-        for item in food_items:
+        for item in bed_items:
             if item not in current_order:
                 no_such_items.append(item)
 
@@ -66,29 +66,29 @@ def remove_from_order(parameters: dict, session_id: str):
         if len(current_order.keys()) == 0:
             fulfillment_text += " Your order is now empty!!!"
         else:
-            order_str = generic_helper.get_str_from_food_dict(current_order)
+            order_str = generic_helper.get_str_from_bed_dict(current_order)
             fulfillment_text += f" Here is what is left in your order: {order_str}"
         return JSONResponse(content={
             "fulfillmentText": fulfillment_text
         })
 
 def add_to_order(parameters: dict, session_id: str):
-    food_items = parameters['food-item']
+    bed_items = parameters['bed-item']
     quantities = parameters['number']
 
-    if len(food_items) != len(quantities):
+    if len(bed_items) != len(quantities):
         fulfillment_text = "please provide the correct quantities with the food items"
     else:
-        new_food_dict = dict(zip(food_items, quantities))
+        new_bed_dict = dict(zip(bed_items, quantities))
 
         if session_id in inprogress_order:
-            current_food_dict = inprogress_order[session_id]
-            current_food_dict.update(new_food_dict)
-            inprogress_order[session_id] = current_food_dict
+            current_bed_dict = inprogress_order[session_id]
+            current_bed_dict.update(new_bed_dict)
+            inprogress_order[session_id] = current_bed_dict
         else:
-            inprogress_order[session_id] = new_food_dict
+            inprogress_order[session_id] = new_bed_dict
 
-        order_str = generic_helper.get_str_from_food_dict(inprogress_order[session_id])
+        order_str = generic_helper.get_str_from_bed_dict(inprogress_order[session_id])
         fulfillment_text = f"so far you 've ordered {order_str}. anything else?"
 
     return JSONResponse(content={
@@ -119,9 +119,9 @@ def complete_order(parameters: dict, session_id: str):
 def save_to_db(order: dict):
     next_order_id = db_helper.get_next_order_id()
 
-    for food_item, quantity in order.items():
+    for bed_item, quantity in order.items():
         rcode = db_helper.insert_order_item(
-            food_item,
+            bed_item,
             quantity,
             next_order_id
         )
@@ -144,4 +144,3 @@ def track_order(parameters: dict, session_id: str):
     return JSONResponse(content={
         "fulfillmentText": fulfillment_text
     })
-

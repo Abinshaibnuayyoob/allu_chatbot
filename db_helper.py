@@ -6,8 +6,9 @@ cnx = mysql.connector.connect(
     host="localhost",
     user="root",
     password="123456789",
-    database="pandeyji_eatery"
+    database="bedzone_industries"
 )
+
 
 def insert_order_tracking(order_id, status):
     cursor = cnx.cursor()
@@ -17,6 +18,7 @@ def insert_order_tracking(order_id, status):
     cnx.commit()
 
     cursor.close()
+
 
 def get_total_order_price(order_id):
     cursor = cnx.cursor()
@@ -28,10 +30,11 @@ def get_total_order_price(order_id):
 
     return result
 
+
 def get_next_order_id():
 
     cursor = cnx.cursor()
-    query = ("SELECT max(order_id) FROM orders")
+    query = "SELECT max(order_id) FROM orders"
     cursor.execute(query)
     result = cursor.fetchone()[0]
 
@@ -42,10 +45,11 @@ def get_next_order_id():
     else:
         return result + 1
 
-def insert_order_item(food_item, quantity, order_id):
+
+def insert_order_item(bed_item, quantity, order_id):
     try:
         cursor = cnx.cursor()
-        cursor.callproc('insert_order_item', (food_item, quantity, order_id))
+        cursor.callproc('insert_order_item', (bed_item, quantity, order_id))
         cnx.commit()
         #cnx.close()
 
@@ -60,26 +64,20 @@ def insert_order_item(food_item, quantity, order_id):
         return -1
 
     except Exception as e:
-        print(f"an error occured: {e}")
+        print(f"an error occurred: {e}")
 
         cnx.rollback()
 
         return -1
 
+
 def get_order_status(order_id: int):
-    # Create a cursor object
     cursor = cnx.cursor()
 
-    # Write the SQL query
-    query = ("SELECT status FROM order_tracking WHERE order_id = %s")
-
-    # Execute the query
+    query = "SELECT status FROM order_tracking WHERE order_id = %s"
     cursor.execute(query, (order_id,))
-
-    # Fetch the result
     result = cursor.fetchone()
 
-    # Close the cursor and connection
     cursor.close()
     #cnx.close()
 
@@ -88,22 +86,3 @@ def get_order_status(order_id: int):
 
     else:
         return None
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
