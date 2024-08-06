@@ -9,7 +9,6 @@ app = FastAPI()
 async def welcome():
     return{"yay!!!": "braze amigos..., its chatbot 3.0...building the new one!!!!!"}
 
-# Your API Key
 API_KEY = "AIzaSyDyeIC30CadRZO9JyoJ4Xqit8JavMfoGhI"
 
 inprogress_order = {}
@@ -19,16 +18,16 @@ async def webhook(request: Request, jjjrk: str = Header(None)):
     if jjjrk != API_KEY:
         return JSONResponse(content={"message": "Invalid API key"}, status_code=401)
 
-    # Retrieve the JSON data from the request
+
     payload = await request.json()
 
-    # Extract the necessary information from the payload
+
     intent = payload['queryResult']['intent']['displayName']
     parameters = payload['queryResult']['parameters']
     output_contexts = payload['queryResult']['outputContexts']
     session_id = generic_helper.extract_session_id(output_contexts[0]['name'])
 
-    # Process the intent and generate a response
+
     intent_handler_dict = {
         'order.add - context: ongoing-order': add_to_order,
         'order.remove - context: ongoing-order': remove_from_order,
